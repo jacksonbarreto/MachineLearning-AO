@@ -8,12 +8,15 @@ from sklearn.metrics import accuracy_score, confusion_matrix, balanced_accuracy_
 
 
 class DecisionTree:
-    def __init__(self, raw_dataset, target_variable_name, test_size=0.2, random_state=42):
+    def __init__(self, dataset_name, raw_dataset, target_variable_name, test_size=0.2, random_state=42):
         if is_valid_dataset(raw_dataset):
             if is_valid_target_variable_name(target_variable_name, raw_dataset):
                 if is_valid_test_size(test_size, len(raw_dataset)):
                     self.__prepare_dataset__(raw_dataset, target_variable_name)
                     self.model = DecisionTreeClassifier(max_features="auto")
+                    self.test_size = test_size
+                    self.random_state = random_state
+                    self.dataset_name = dataset_name
                     self.__prepare_training_data__(test_size, random_state)
                     self.__fit__()
                 else:
@@ -31,6 +34,9 @@ class DecisionTree:
             "algorithm": "Decision Tree",
             "score": self.model.score(self.X_test, self.y_test),
             "parameters": self.model.get_params(),
+            "dataset": self.dataset_name,
+            "test_size": self.test_size,
+            "random_state": self.random_state,
             "metrics": self.__get_metrics__()
         }
 
