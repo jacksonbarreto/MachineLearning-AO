@@ -5,6 +5,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, explained_variance_score, max_error, mean_absolute_error, \
     mean_squared_log_error, median_absolute_error, r2_score, mean_poisson_deviance, mean_gamma_deviance, \
     mean_absolute_percentage_error, d2_absolute_error_score, d2_pinball_score, d2_tweedie_score, confusion_matrix
+from sklearn.preprocessing import minmax_scale
+
 from helpers.validator import is_valid_dataset, is_valid_target_variable_name, is_valid_test_size
 
 
@@ -34,10 +36,10 @@ class LinearRegression:
         return {
             "algorithm": "Linear Regression",
             "score": self.model.score(self.X_test, self.y_test),
-            "parameters": self.model.get_params(),
             "dataset": self.dataset_name,
             "test_size": self.test_size,
             "random_state": self.random_state,
+            "parameters": self.model.get_params(),
             "metrics": self.__get_metrics__()
         }
 
@@ -51,15 +53,15 @@ class LinearRegression:
             "max_error": max_error(self.y_test, self.y_pred),
             "mean_absolute_error": mean_absolute_error(self.y_test, self.y_pred),
             "mean_squared_error": mean_squared_error(self.y_test, self.y_pred),
-            "mean_squared_log_error": mean_squared_log_error(self.y_test, self.y_pred),
+            "mean_squared_log_error": mean_squared_log_error(self.y_test, minmax_scale(self.y_pred, feature_range=(0, 1))),
             "median_absolute_error": median_absolute_error(self.y_test, self.y_pred),
             "r2_score": r2_score(self.y_test, self.y_pred),
-            "mean_poisson_deviance": mean_poisson_deviance(self.y_test, self.y_pred),
-            "mean_gamma_deviance": mean_gamma_deviance(self.y_test, self.y_pred),
+            # "mean_poisson_deviance": mean_poisson_deviance(self.y_test, minmax_scale(self.y_pred, feature_range=(0, 1))),
+            # "mean_gamma_deviance": mean_gamma_deviance(self.y_test, minmax_scale(self.y_pred, feature_range=(0, 1))),
             "mean_absolute_percentage_error": mean_absolute_percentage_error(self.y_test, self.y_pred),
             "d2_absolute_error_score": d2_absolute_error_score(self.y_test, self.y_pred),
             "d2_pinball_score": d2_pinball_score(self.y_test, self.y_pred),
-            "d2_tweedie_score": d2_tweedie_score(self.y_test, self.y_pred),
+            "d2_tweedie_score": d2_tweedie_score(self.y_test, minmax_scale(self.y_pred, feature_range=(0, 1))),
             "confusion_matrix": self.__get_confusion_matrix__()
         }
 

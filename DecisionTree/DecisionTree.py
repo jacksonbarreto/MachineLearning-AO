@@ -13,7 +13,7 @@ class DecisionTree:
             if is_valid_target_variable_name(target_variable_name, raw_dataset):
                 if is_valid_test_size(test_size, len(raw_dataset)):
                     self.__prepare_dataset__(raw_dataset, target_variable_name)
-                    self.model = DecisionTreeClassifier(max_features="auto")
+                    self.model = DecisionTreeClassifier()
                     self.test_size = test_size
                     self.random_state = random_state
                     self.dataset_name = dataset_name
@@ -33,10 +33,10 @@ class DecisionTree:
         return {
             "algorithm": "Decision Tree",
             "score": self.model.score(self.X_test, self.y_test),
-            "parameters": self.model.get_params(),
             "dataset": self.dataset_name,
             "test_size": self.test_size,
             "random_state": self.random_state,
+            "parameters": self.model.get_params(),
             "metrics": self.__get_metrics__()
         }
 
@@ -44,7 +44,7 @@ class DecisionTree:
         return {
             "accuracy": accuracy_score(self.y_test, self.y_pred),
             "balanced_accuracy": balanced_accuracy_score(self.y_test, self.y_pred),
-            "top_k_accuracy": top_k_accuracy_score(self.y_test, self.y_pred),
+            #"top_k_accuracy": top_k_accuracy_score(self.y_test, self.y_pred),
             "average_precision": average_precision_score(self.y_test, self.y_pred),
             "neg_brier_score": brier_score_loss(self.y_test, self.y_pred),
             "f1_score": f1_score(self.y_test, self.y_pred),
@@ -70,4 +70,4 @@ class DecisionTree:
                                                                                 random_state=random_state)
 
     def __get_confusion_matrix__(self):
-        return pd.DataFrame(confusion_matrix(self.y_test, self.y_pred))
+        return pd.DataFrame(confusion_matrix(self.y_test, self.y_pred)).to_json()

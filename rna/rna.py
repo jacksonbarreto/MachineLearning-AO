@@ -47,7 +47,10 @@ class RNA:
     def get_information_model(self):
         return {
             "algorithm": "RNA",
-            "score": self.model.score(self.X_test, self.y_test),
+            #"score": self.model.score(self.X_test, self.y_test),
+            "dataset": self.dataset_name,
+            "test_size": self.test_size,
+            "random_state": self.random_state,
             "parameters": {
                 "layers": self.layers,
                 "neurons": self.neurons,
@@ -56,9 +59,6 @@ class RNA:
                 "batch_size": self.batch_size,
                 "model": self.model.to_json()
             },
-            "dataset": self.dataset_name,
-            "test_size": self.test_size,
-            "random_state": self.random_state,
             "metrics": self.__get_metrics__()
         }
 
@@ -71,8 +71,8 @@ class RNA:
         }
 
     def __fit__(self):
-        self.model.fit(self.X_train, self.y_train)
         self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy', 'mse', 'mae', 'mape'])
+        self.model.fit(self.X_train, self.y_train, verbose=0, use_multiprocessing=True)
         self.__predict__()
 
     def __predict__(self):
@@ -91,9 +91,9 @@ class RNA:
         return pd.DataFrame(confusion_matrix(self.y_test, np.where(self.y_pred > 0.5, 1, 0))).to_json()
 
     def __prepare_layers__(self):
-        for i, layer in enumerate(self.layers):
+        for i in range(self.layers):
             if i == 0:
-                self.model.add(Dense(self.neurons[i], activation=self.activations[i], input_dim=self.dataset.columns))
+                self.model.add(Dense(self.neurons[i], activation=self.activations[i], input_dim=self.dataset.shape[1]))
             else:
                 self.model.add(Dense(self.neurons[i], activation=self.activations[i]))
 
@@ -133,8 +133,8 @@ class RNA:
             return False
 
     def __is_valid_layer_size__(self):
-        if (len(self.layers) > 0 and len(self.neurons) > 0 and len(self.activations) > 0) and (
-                len(self.layers) == len(self.neurons) == len(self.activations)):
+        if (self.layers > 0 and len(self.neurons) > 0 and len(self.activations) > 0) and (
+                self.layers == len(self.neurons) == len(self.activations)):
             return True
         else:
             return False
@@ -147,11 +147,10 @@ class RNA:
                 return False
 
     def __is_valid_layer__(self):
-        for layer in self.layers:
-            if isinstance(layer, int) and layer > 0:
-                return True
-            else:
-                return False
+        if isinstance(self.layers, int) and self.layers > 0:
+            return True
+        else:
+            return False
 
     def __is_valid_activations__(self):
         for activation in self.activations:
