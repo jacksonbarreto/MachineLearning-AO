@@ -47,17 +47,17 @@ class RNA:
     def get_information_model(self):
         return {
             "algorithm": "RNA",
-            #"score": self.model.score(self.X_test, self.y_test),
+            "score": self.__get_accuracy__(),
             "dataset": self.dataset_name,
             "test_size": self.test_size,
             "random_state": self.random_state,
+            "model": self.model.to_json(),
             "parameters": {
                 "layers": self.layers,
                 "neurons": self.neurons,
                 "activations": self.activations,
                 "epochs": self.epochs,
                 "batch_size": self.batch_size,
-                "model": self.model.to_json()
             },
             "metrics": self.__get_metrics__()
         }
@@ -72,7 +72,8 @@ class RNA:
 
     def __fit__(self):
         self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy', 'mse', 'mae', 'mape'])
-        self.model.fit(self.X_train, self.y_train, verbose=0, use_multiprocessing=True)
+        self.model.fit(self.X_train, self.y_train, epochs=self.epochs, batch_size=self.batch_size, verbose=0,
+                       use_multiprocessing=True)
         self.__predict__()
 
     def __predict__(self):
@@ -100,17 +101,17 @@ class RNA:
     def __get_accuracy__(self):
         auc = AUC()
         auc.update_state(self.y_test, self.y_pred)
-        return auc.result().numpy()
+        return float(auc.result().numpy())
 
     def __get_mse__(self):
         mse = MeanSquaredError()
         mse.update_state(self.y_test, self.y_pred)
-        return mse.result().numpy()
+        return float(mse.result().numpy())
 
     def __get_binary_accuracy__(self):
         ba = BinaryAccuracy()
         ba.update_state(self.y_test, self.y_pred)
-        return ba.result().numpy()
+        return float(ba.result().numpy())
 
     def __is_valid_layer_configuration__(self):
         if self.__is_valid_layer_size__() and \

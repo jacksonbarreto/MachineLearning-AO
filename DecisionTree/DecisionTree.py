@@ -1,4 +1,5 @@
 import pandas as pd
+import sklearn_json as skljson
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 
@@ -36,6 +37,7 @@ class DecisionTree:
             "dataset": self.dataset_name,
             "test_size": self.test_size,
             "random_state": self.random_state,
+            "model": self.__model_to_dict__(),
             "parameters": self.model.get_params(),
             "metrics": self.__get_metrics__()
         }
@@ -44,7 +46,6 @@ class DecisionTree:
         return {
             "accuracy": accuracy_score(self.y_test, self.y_pred),
             "balanced_accuracy": balanced_accuracy_score(self.y_test, self.y_pred),
-            #"top_k_accuracy": top_k_accuracy_score(self.y_test, self.y_pred),
             "average_precision": average_precision_score(self.y_test, self.y_pred),
             "neg_brier_score": brier_score_loss(self.y_test, self.y_pred),
             "f1_score": f1_score(self.y_test, self.y_pred),
@@ -71,3 +72,6 @@ class DecisionTree:
 
     def __get_confusion_matrix__(self):
         return pd.DataFrame(confusion_matrix(self.y_test, self.y_pred)).to_json()
+
+    def __model_to_dict__(self):
+        return skljson.to_dict(self.model)

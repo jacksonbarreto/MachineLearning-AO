@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import sklearn_json as skljson
 from sklearn.linear_model import LinearRegression as Lr
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, explained_variance_score, max_error, mean_absolute_error, \
@@ -39,6 +40,7 @@ class LinearRegression:
             "dataset": self.dataset_name,
             "test_size": self.test_size,
             "random_state": self.random_state,
+            "model": self.__model_to_dict__(),
             "parameters": self.model.get_params(),
             "metrics": self.__get_metrics__()
         }
@@ -53,11 +55,10 @@ class LinearRegression:
             "max_error": max_error(self.y_test, self.y_pred),
             "mean_absolute_error": mean_absolute_error(self.y_test, self.y_pred),
             "mean_squared_error": mean_squared_error(self.y_test, self.y_pred),
-            "mean_squared_log_error": mean_squared_log_error(self.y_test, minmax_scale(self.y_pred, feature_range=(0, 1))),
+            "mean_squared_log_error": mean_squared_log_error(self.y_test,
+                                                             minmax_scale(self.y_pred, feature_range=(0, 1))),
             "median_absolute_error": median_absolute_error(self.y_test, self.y_pred),
             "r2_score": r2_score(self.y_test, self.y_pred),
-            # "mean_poisson_deviance": mean_poisson_deviance(self.y_test, minmax_scale(self.y_pred, feature_range=(0, 1))),
-            # "mean_gamma_deviance": mean_gamma_deviance(self.y_test, minmax_scale(self.y_pred, feature_range=(0, 1))),
             "mean_absolute_percentage_error": mean_absolute_percentage_error(self.y_test, self.y_pred),
             "d2_absolute_error_score": d2_absolute_error_score(self.y_test, self.y_pred),
             "d2_pinball_score": d2_pinball_score(self.y_test, self.y_pred),
@@ -79,3 +80,6 @@ class LinearRegression:
 
     def __get_confusion_matrix__(self):
         return pd.DataFrame(confusion_matrix(self.y_test, np.where(self.y_pred > 0.5, 1, 0))).to_json()
+
+    def __model_to_dict__(self):
+        return skljson.to_dict(self.model)
